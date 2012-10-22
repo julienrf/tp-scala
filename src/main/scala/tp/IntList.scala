@@ -5,21 +5,25 @@ package tp
  */
 sealed abstract class IntList {
 
-  def foreach(f: Int => Unit): Unit
+  import IntList._
 
-  def map(f: Int => Int): IntList
+  override def toString = fold[String]("nil", (x, acc) => "" + x + " :: " + acc)
 
-  def filter(p: Int => Boolean): IntList
+  final def foreach(f: Int => Unit) {
+    fold[Unit]((), (x, _) => f(x))
+  }
 
-  def sum = fold(0, _ + _)
+  final def map(f: Int => Int) = fold[IntList](nil, (x, xs) => cons(f(x), xs))
 
-  def product = fold(1, _ * _)
+  final def filter(p: Int => Boolean) = fold[IntList](nil, (x, xs) => if (p(x)) cons(x, xs) else xs)
 
-  def fold(z: Int, op: (Int, Int) => Int): Int
+  final def sum = fold[Int](0, _ + _)
 
-  def forall(p: Int => Boolean) = foldBool(true, (x, r) => r && p(x))
+  final def product = fold[Int](1, _ * _)
 
-  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean): Boolean
+  def fold[A](z: A, op: (Int, A) => A): A
+
+  final def forall(p: Int => Boolean) = fold[Boolean](true, (x, r) => r && p(x))
 
 }
 
@@ -27,18 +31,7 @@ sealed abstract class IntList {
  * Empty list
  */
 class Nil extends IntList {
-
-  override def toString = "nil"
-
-  def foreach(f: Int => Unit) { }
-
-  def map(f: Int => Int) = IntList.nil
-
-  def filter(p: (Int) => Boolean) = IntList.nil
-
-  def fold(z: Int, op: (Int, Int) => Int): Int = z
-
-  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean): Boolean = z
+  def fold[A](z: A, op: (Int, A) => A): A = z
 }
 
 /**
@@ -47,23 +40,7 @@ class Nil extends IntList {
  * @param tail Tail list
  */
 class Cons(head: Int, tail: IntList) extends IntList {
-
-  override def toString = "" + head + " :: " + tail
-
-  def foreach(f: Int => Unit) {
-    f(head)
-    tail.foreach(f)
-  }
-
-  def map(f: Int => Int): IntList = IntList.cons(f(head), tail.map(f))
-
-  def filter(p: (Int) => Boolean) =
-    if (p(head)) IntList.cons(head, tail.filter(p))
-    else tail.filter(p)
-
-  def fold(z: Int, op: (Int, Int) => Int) = op(head, tail.fold(z, op))
-
-  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean) = op(head, tail.foldBool(z, op))
+  def fold[A](z: A, op: (Int, A) => A) = op(head, tail.fold(z, op))
 }
 
 /**
