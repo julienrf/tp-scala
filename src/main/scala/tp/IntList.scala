@@ -11,13 +11,13 @@ sealed abstract class IntList {
 
   def filter(p: Int => Boolean): IntList
 
-  def sum: Int
+  def sum = fold(0, _ + _)
 
-  def product: Int
+  def product = fold(1, _ * _)
 
   def fold(z: Int, op: (Int, Int) => Int): Int
 
-  def forall(p: Int => Boolean): Boolean
+  def forall(p: Int => Boolean) = foldBool(true, (x, r) => r && p(x))
 
   def foldBool(z: Boolean, op: (Int, Boolean) => Boolean): Boolean
 
@@ -36,15 +36,9 @@ class Nil extends IntList {
 
   def filter(p: (Int) => Boolean) = IntList.nil
 
-  def sum = 0
+  def fold(z: Int, op: (Int, Int) => Int): Int = z
 
-  def product = 1
-
-  def fold(z: Int, op: (Int, Int) => Int): Int = ???
-
-  def forall(p: Int => Boolean): Boolean = ???
-
-  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean): Boolean = ???
+  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean): Boolean = z
 }
 
 /**
@@ -67,15 +61,9 @@ class Cons(head: Int, tail: IntList) extends IntList {
     if (p(head)) IntList.cons(head, tail.filter(p))
     else tail.filter(p)
 
-  def sum = head + tail.sum
+  def fold(z: Int, op: (Int, Int) => Int) = op(head, tail.fold(z, op))
 
-  def product = head * tail.product
-
-  def fold(z: Int, op: (Int, Int) => Int) = ???
-
-  def forall(p: (Int) => Boolean) = ???
-
-  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean) = ???
+  def foldBool(z: Boolean, op: (Int, Boolean) => Boolean) = op(head, tail.foldBool(z, op))
 }
 
 /**
