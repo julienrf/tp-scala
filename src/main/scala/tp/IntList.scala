@@ -7,7 +7,9 @@ sealed abstract class IntList {
 
   import IntList._
 
-  override def toString = fold[String]("nil", (x, acc) => "" + x + " :: " + acc)
+  def fold[A](z: A, op: (Int, A) => A): A
+
+  final override def toString = fold[String]("nil", (x, acc) => "" + x + " :: " + acc)
 
   final def foreach(f: Int => Unit) {
     fold[Unit]((), (x, _) => f(x))
@@ -20,8 +22,6 @@ sealed abstract class IntList {
   final def sum = fold[Int](0, _ + _)
 
   final def product = fold[Int](1, _ * _)
-
-  def fold[A](z: A, op: (Int, A) => A): A
 
   final def forall(p: Int => Boolean) = fold[Boolean](true, (x, r) => r && p(x))
 
