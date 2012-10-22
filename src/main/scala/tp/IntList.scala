@@ -28,7 +28,7 @@ sealed abstract class IntList {
  */
 class Nil extends IntList {
 
-  override def toString = "???"
+  override def toString = "nil"
 
   def foreach(f: Int => Unit) {
     ???
@@ -56,7 +56,7 @@ class Nil extends IntList {
  */
 class Cons(head: Int, tail: IntList) extends IntList {
 
-  override def toString = "???"
+  override def toString = "cons(" + head + ", " + tail + ")"
 
   def foreach(f: Int => Unit) {
     ???
