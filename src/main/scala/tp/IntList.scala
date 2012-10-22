@@ -30,17 +30,15 @@ class Nil extends IntList {
 
   override def toString = "nil"
 
-  def foreach(f: Int => Unit) {
-    ???
-  }
+  def foreach(f: Int => Unit) { }
 
-  def map(f: Int => Int): IntList = ???
+  def map(f: Int => Int) = IntList.nil
 
-  def filter(p: (Int) => Boolean) = ???
+  def filter(p: (Int) => Boolean) = IntList.nil
 
-  def sum = ???
+  def sum = 0
 
-  def product = ???
+  def product = 1
 
   def fold(z: Int, op: (Int, Int) => Int): Int = ???
 
@@ -56,19 +54,22 @@ class Nil extends IntList {
  */
 class Cons(head: Int, tail: IntList) extends IntList {
 
-  override def toString = "cons(" + head + ", " + tail + ")"
+  override def toString = "" + head + " :: " + tail
 
   def foreach(f: Int => Unit) {
-    ???
+    f(head)
+    tail.foreach(f)
   }
 
-  def map(f: Int => Int): IntList = ???
+  def map(f: Int => Int): IntList = IntList.cons(f(head), tail.map(f))
 
-  def filter(p: (Int) => Boolean) = ???
+  def filter(p: (Int) => Boolean) =
+    if (p(head)) IntList.cons(head, tail.filter(p))
+    else tail.filter(p)
 
-  def sum = ???
+  def sum = head + tail.sum
 
-  def product = ???
+  def product = head * tail.product
 
   def fold(z: Int, op: (Int, Int) => Int) = ???
 
