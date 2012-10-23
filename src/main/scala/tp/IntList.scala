@@ -3,44 +3,26 @@ package tp
 /**
  * IntList public interface
  */
-sealed abstract class IntList {
+final class IntList(val fold: IntList.Fold) {
 
   import IntList._
 
-  def fold[A](z: A, op: (Int, A) => A): A
+  override def toString = fold("nil")((x, acc) => "" + x + " :: " + acc)
 
-  final override def toString = fold[String]("nil", (x, acc) => "" + x + " :: " + acc)
-
-  final def foreach(f: Int => Unit) {
-    fold[Unit]((), (x, _) => f(x))
+  def foreach(f: Int => Unit) {
+    fold(())((x, _) => f(x))
   }
 
-  final def map(f: Int => Int) = fold[IntList](nil, (x, xs) => cons(f(x), xs))
+  def map(f: Int => Int) = fold(nil)((x, xs) => cons(f(x), xs))
 
-  final def filter(p: Int => Boolean) = fold[IntList](nil, (x, xs) => if (p(x)) cons(x, xs) else xs)
+  def filter(p: Int => Boolean) = fold(nil)((x, xs) => if (p(x)) cons(x, xs) else xs)
 
-  final def sum = fold[Int](0, _ + _)
+  def sum = fold(0)(_ + _)
 
-  final def product = fold[Int](1, _ * _)
+  def product = fold(1)(_ * _)
 
-  final def forall(p: Int => Boolean) = fold[Boolean](true, (x, r) => r && p(x))
+  def forall(p: Int => Boolean) = fold(true)((x, r) => r && p(x))
 
-}
-
-/**
- * Empty list
- */
-object Nil extends IntList {
-  def fold[A](z: A, op: (Int, A) => A): A = z
-}
-
-/**
- * List with a `head` element and a `tail` list
- * @param head Head element
- * @param tail Tail list
- */
-final class Cons(head: Int, tail: IntList) extends IntList {
-  def fold[A](z: A, op: (Int, A) => A) = op(head, tail.fold(z, op))
 }
 
 /**
@@ -48,11 +30,19 @@ final class Cons(head: Int, tail: IntList) extends IntList {
  */
 object IntList {
 
+  trait Fold {
+    def apply[A](z: A)(op: (Int, A) => A): A
+  }
+
   /** @return an empty list */
-  def nil: IntList = Nil
+  def nil: IntList = new IntList(new Fold {
+    def apply[A](z: A)(op: (Int, A) => A) = z
+  })
 
   /** @return a list with a `head` element and a `tail` list */
-  def cons(head: Int, tail: IntList): IntList = new Cons(head, tail)
+  def cons(head: Int, tail: IntList): IntList = new IntList(new Fold {
+    def apply[A](z: A)(op: (Int, A) => A) = op(head, tail.fold(z)(op))
+  })
 
   /** @example IntList(1, 2, 3) */
   def apply(xs: Int*): IntList = xs.foldRight(nil)(cons)
