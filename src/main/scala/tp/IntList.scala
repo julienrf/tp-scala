@@ -30,7 +30,7 @@ sealed abstract class IntList {
 /**
  * Empty list
  */
-class Nil extends IntList {
+object Nil extends IntList {
   def fold[A](z: A, op: (Int, A) => A): A = z
 }
 
@@ -39,7 +39,7 @@ class Nil extends IntList {
  * @param head Head element
  * @param tail Tail list
  */
-class Cons(head: Int, tail: IntList) extends IntList {
+final class Cons(head: Int, tail: IntList) extends IntList {
   def fold[A](z: A, op: (Int, A) => A) = op(head, tail.fold(z, op))
 }
 
@@ -49,7 +49,7 @@ class Cons(head: Int, tail: IntList) extends IntList {
 object IntList {
 
   /** @return an empty list */
-  def nil: IntList = new Nil
+  def nil: IntList = Nil
 
   /** @return a list with a `head` element and a `tail` list */
   def cons(head: Int, tail: IntList): IntList = new Cons(head, tail)
