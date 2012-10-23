@@ -3,6 +3,7 @@ package tp
 import concurrent.{Await, Future}
 import concurrent.ExecutionContext.Implicits.global
 import concurrent.util.duration._
+import java.util.Date
 
 class OPower {
   def energy(person: String): Int = {
@@ -15,9 +16,16 @@ class OPower {
 }
 
 trait Cache extends OPower {
-  override def energy(person: String) = ???
+  var cached: Option[(Int, Long)] = None
+  override def energy(person: String) = cached match {
+    case Some((value, timestamp)) if timestamp + 10 < (new Date).getTime => value
+    case _ =>
+      val value = super.energy(person)
+      cached = Some(value, (new Date).getTime)
+      value
+  }
 }
 
 trait RichOPower extends OPower {
-  def energyInJoules(person: String): Int = ???
+  def energyInJoules(person: String): Int = energy(person) * 3600
 }
