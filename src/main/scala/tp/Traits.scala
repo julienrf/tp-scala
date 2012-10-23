@@ -2,7 +2,7 @@ package tp
 
 import concurrent.{Await, Future}
 import concurrent.ExecutionContext.Implicits.global
-import concurrent.util.duration._
+import concurrent.duration._
 
 class OPower {
   def energy(person: String): Int = {
